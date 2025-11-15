@@ -3,296 +3,465 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SoulCare - Your Mental Health Companion</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <title>SoulCare - Your Mental Wellness Companion</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
-    <!-- Welcome Screen (shows initially) -->
-    <div id="welcomeScreen" class="welcome-screen">
-        <div class="welcome-content">
-            <div class="welcome-icon">
-                <i class="fas fa-brain"></i>
+    <!-- Intake Form Container -->
+    <div id="intakeContainer" class="intake-wrapper">
+        <div class="intake-card">
+            <div class="intake-header">
+                <div class="brand-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h1 class="intake-title">Welcome to SoulCare</h1>
+                <p class="intake-subtitle">Your compassionate AI companion for mental wellness</p>
             </div>
-            <h1 class="welcome-title">Welcome to SoulCare</h1>
-            <p class="welcome-subtitle">Your compassionate AI companion for mental wellness</p>
-            <p class="welcome-description">
-                I'm here to listen, support, and guide you through your mental health journey. 
-                Feel free to share what's on your mind - this is a safe, judgment-free space.
-            </p>
-            <button class="btn-start" onclick="startChat()">
-                <i class="fas fa-comment-dots"></i> Start Conversation
-            </button>
-            <div class="welcome-features">
-                <div class="feature-item">
-                    <i class="fas fa-lock"></i>
-                    <span>Private & Secure</span>
+
+            <form id="intakeForm" class="intake-form-content">
+                <div class="form-field">
+                    <label for="userAge" class="field-label">
+                        <i class="fas fa-calendar-alt"></i>
+                        Age <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="userAge" 
+                        name="age" 
+                        class="field-input" 
+                        placeholder="Enter your age" 
+                        min="13" 
+                        max="120" 
+                        required
+                    >
                 </div>
-                <div class="feature-item">
-                    <i class="fas fa-clock"></i>
-                    <span>24/7 Available</span>
+
+                <div class="form-field">
+                    <label for="userGender" class="field-label">
+                        <i class="fas fa-user"></i>
+                        Gender <span class="required">*</span>
+                    </label>
+                    <select id="userGender" name="gender" class="field-input" required>
+                        <option value="">Select your gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Non-binary">Non-binary</option>
+                        <option value="Prefer not to say">Prefer not to say</option>
+                        <option value="Other">Other</option>
+                    </select>
                 </div>
-                <div class="feature-item">
-                    <i class="fas fa-hand-holding-heart"></i>
-                    <span>Evidence-Based Support</span>
+
+                <div class="form-field">
+                    <label for="userOccupation" class="field-label">
+                        <i class="fas fa-briefcase"></i>
+                        Occupation <span class="optional">(Optional)</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="userOccupation" 
+                        name="occupation" 
+                        class="field-input" 
+                        placeholder="e.g., Student, Engineer, Teacher..."
+                    >
                 </div>
+
+                <button type="submit" class="intake-submit-btn">
+                    <span>Start Your Journey</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+
+                <div id="intakeError" class="intake-error"></div>
+                <div id="intakeLoading" class="intake-loading">
+                    <div class="spinner"></div>
+                    <p>Setting up your personalized space...</p>
+                </div>
+            </form>
+
+            <div class="intake-footer">
+                <p><i class="fas fa-shield-alt"></i> Your privacy is our priority. All conversations are confidential.</p>
             </div>
         </div>
     </div>
 
-    <!-- Main Chat Interface -->
-    <div class="container-fluid h-100" id="chatInterface" style="display: none;">
-        <div class="row justify-content-center h-100">
-            <div class="col-12 col-md-10 col-lg-8 col-xl-6 chat">
-                <div class="card">
-                    <!-- Chat Header -->
-                    <div class="card-header msg_head">
-                        <div class="d-flex align-items-center">
-                            <div class="img_cont">
-                                <div class="avatar-bot">
-                                    <i class="fas fa-brain"></i>
-                                </div>
-                                <span class="online_icon"></span>
-                            </div>
-                            <div class="user_info">
-                                <span class="bot-name">SoulCare AI</span>
-                                <p class="bot-status">Here to support you</p>
-                            </div>
-                        </div>
-                        <div class="header-actions">
-                            <button class="action-btn" onclick="clearChat()" title="Clear conversation">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button class="action-btn" id="action_menu_btn" title="Menu">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                        </div>
-                        <div class="action_menu">
-                            <ul>
-                                <li onclick="toggleTheme()"><i class="fas fa-palette"></i> Change Theme</li>
-                                <li onclick="showInfo()"><i class="fas fa-info-circle"></i> About SoulCare</li>
-                                <li onclick="exportChat()"><i class="fas fa-download"></i> Export Conversation</li>
-                            </ul>
-                        </div>
-                    </div>
+    <!-- Chat Interface -->
+    <div id="chatContainer" class="chat-wrapper">
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="header-left">
+                <div class="brand-logo">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="header-info">
+                    <h2>SoulCare</h2>
+                    <p class="status-text"><span class="status-dot"></span>Always here for you</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info-pill">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="displayUserInfo"></span>
+                </div>
+                <button class="header-action-btn" onclick="resetIntake()" title="Change Info">
+                    <i class="fas fa-edit"></i>
+                </button>
+            </div>
+        </div>
 
-                    <!-- Chat Messages Area -->
-                    <div class="card-body msg_card_body" id="messageFormeight">
-                        <!-- Initial Bot Message -->
-                        <div class="d-flex justify-content-start mb-4 message-appear">
-                            <div class="img_cont_msg">
-                                <div class="avatar-bot-msg">
-                                    <i class="fas fa-brain"></i>
-                                </div>
-                            </div>
-                            <div class="msg_cotainer">
-                                Hello! I'm SoulCare, your mental health companion. 😊
-                                <span class="msg_time">Just now</span>
-                            </div>
-                        </div>
-                        <div class="d-flex justify-content-start mb-4 message-appear">
-                            <div class="img_cont_msg">
-                                <div class="avatar-bot-msg">
-                                    <i class="fas fa-brain"></i>
-                                </div>
-                            </div>
-                            <div class="msg_cotainer">
-                                How are you feeling today? You can share anything that's on your mind.
-                                <span class="msg_time">Just now</span>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Messages Area -->
+        <div class="messages-container" id="messagesArea">
+            <div class="welcome-message">
+                <div class="welcome-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>Hello, I'm SoulCare</h3>
+                <p>I'm here to listen, support, and guide you through your mental health journey.</p>
+                <p>Feel free to share what's on your mind - this is a safe, judgment-free space.</p>
 
-                    <!-- Typing Indicator -->
-                    <div id="typingIndicator" class="typing-indicator" style="display: none;">
+                <div class="quick-actions">
+                    <button class="quick-action-btn" onclick="sendQuickMessage('I am feeling stressed today')">
+                        <i class="fas fa-brain"></i> Feeling stressed
+                    </button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('I need help with anxiety')">
+                        <i class="fas fa-hand-holding-heart"></i> Need help with anxiety
+                    </button>
+                    <button class="quick-action-btn" onclick="sendQuickMessage('Tell me about self-care')">
+                        <i class="fas fa-spa"></i> Learn about self-care
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="chat-footer">
+            <div class="input-container">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="Share your thoughts here..." 
+                    rows="1"
+                    onkeydown="handleKeyDown(event)"
+                ></textarea>
+                <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+            <div class="footer-note">
+                <i class="fas fa-info-circle"></i>
+                <span>SoulCare provides support but is not a substitute for professional help.</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let isProcessing = false;
+        let chatStarted = false;
+
+        // Initialize marked for markdown rendering
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true
+            });
+        }
+
+        // Initialize
+        window.addEventListener('load', function() {
+            checkExistingSession();
+        });
+
+        // Check if user has an existing session
+        function checkExistingSession() {
+            const age = sessionStorage.getItem('userAge');
+            const gender = sessionStorage.getItem('userGender');
+
+            if (age && gender) {
+                showChatInterface();
+                updateUserDisplay();
+                if (!chatStarted) {
+                    addIntroMessage();
+                }
+            }
+        }
+
+        // Add intro message from bot
+        function addIntroMessage() {
+            chatStarted = true;
+            const age = sessionStorage.getItem('userAge');
+            const gender = sessionStorage.getItem('userGender');
+            const occupation = sessionStorage.getItem('userOccupation');
+
+            let introText = `Hi there! I'm **SoulCare**, your compassionate mental wellness companion.
+
+I've got a little information about you:
+- **Age:** ${age}
+- **Gender:** ${gender}`;
+
+            if (occupation) {
+                introText += `\n- **Occupation:** ${occupation}`;
+            }
+
+            introText += `\n\nWith this context, I can provide you with more personalized support and guidance that's relevant to your life stage and circumstances.
+
+**How can I help you today?** Feel free to share:
+- What's on your mind right now
+- Any challenges you're facing
+- Topics you'd like to explore (stress, anxiety, relationships, work-life balance, etc.)
+- Or just start a conversation
+
+Remember, this is a **safe, judgment-free space**. I'm here to listen, support, and help you find gentle strategies for your wellbeing. 💜`;
+
+            setTimeout(() => {
+                addMessage(introText, 'bot');
+            }, 500);
+        }
+
+        // Handle intake form submission
+        document.getElementById('intakeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const age = document.getElementById('userAge').value;
+            const gender = document.getElementById('userGender').value;
+            const occupation = document.getElementById('userOccupation').value;
+
+            const errorDiv = document.getElementById('intakeError');
+            const loadingDiv = document.getElementById('intakeLoading');
+
+            errorDiv.textContent = '';
+            loadingDiv.style.display = 'flex';
+
+            try {
+                const response = await fetch('/submit-intake', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ age, gender, occupation })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    sessionStorage.setItem('userAge', age);
+                    sessionStorage.setItem('userGender', gender);
+                    sessionStorage.setItem('userOccupation', occupation || '');
+
+                    setTimeout(() => {
+                        showChatInterface();
+                        updateUserDisplay();
+                        addIntroMessage();
+                    }, 800);
+                } else {
+                    errorDiv.textContent = data.message || 'An error occurred. Please try again.';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'Network error. Please check your connection.';
+                console.error('Error:', error);
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+
+        // Show chat interface
+        function showChatInterface() {
+            document.getElementById('intakeContainer').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'flex';
+            document.getElementById('messageInput').focus();
+        }
+
+        // Update user display in header
+        function updateUserDisplay() {
+            const age = sessionStorage.getItem('userAge');
+            const gender = sessionStorage.getItem('userGender');
+            const occupation = sessionStorage.getItem('userOccupation');
+
+            let displayText = `${age}, ${gender}`;
+            if (occupation) {
+                displayText += ` · ${occupation}`;
+            }
+
+            document.getElementById('displayUserInfo').textContent = displayText;
+        }
+
+        // Reset intake (logout)
+        function resetIntake() {
+            if (confirm('Are you sure you want to change your information? This will clear the current chat.')) {
+                sessionStorage.clear();
+                chatStarted = false;
+                location.reload();
+            }
+        }
+
+        // Send message
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message || isProcessing) return;
+
+            isProcessing = true;
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+
+            // Remove welcome message on first user message
+            const welcomeMsg = document.querySelector('.welcome-message');
+            if (welcomeMsg) {
+                welcomeMsg.style.display = 'none';
+            }
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            input.style.height = 'auto';
+
+            // Show typing indicator
+            const typingId = showTypingIndicator();
+
+            try {
+                const formData = new FormData();
+                formData.append('msg', message);
+
+                const response = await fetch('/get', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const botResponse = await response.text();
+
+                // Remove typing indicator
+                removeTypingIndicator(typingId);
+
+                // Add bot message
+                setTimeout(() => {
+                    addMessage(botResponse, 'bot');
+                }, 300);
+
+            } catch (error) {
+                removeTypingIndicator(typingId);
+                addMessage('I apologize, but I encountered an error. Please try again.', 'bot');
+                console.error('Error:', error);
+            } finally {
+                isProcessing = false;
+                sendBtn.disabled = false;
+            }
+        }
+
+        // Send quick message
+        function sendQuickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        // Add message to chat with markdown rendering
+        function addMessage(text, type) {
+            const messagesArea = document.getElementById('messagesArea');
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+
+            let formattedText;
+            if (type === 'bot') {
+                // Use markdown rendering for bot messages
+                try {
+                    formattedText = marked.parse(text);
+                } catch (e) {
+                    formattedText = escapeHtml(text).replace(/\n/g, '<br>');
+                }
+            } else {
+                // Simple escape for user messages
+                formattedText = escapeHtml(text).replace(/\n/g, '<br>');
+            }
+
+            if (type === 'bot') {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="message-content">
+                        <div class="message-bubble">${formattedText}</div>
+                        <div class="message-time">${getCurrentTime()}</div>
+                    </div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-bubble">${formattedText}</div>
+                        <div class="message-time">${getCurrentTime()}</div>
+                    </div>
+                    <div class="message-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                `;
+            }
+
+            messagesArea.appendChild(messageDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const messagesArea = document.getElementById('messagesArea');
+            const typingDiv = document.createElement('div');
+            const typingId = 'typing-' + Date.now();
+            typingDiv.id = typingId;
+            typingDiv.className = 'message message-bot typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-bubble">
                         <div class="typing-dots">
                             <span></span>
                             <span></span>
                             <span></span>
                         </div>
-                        <span class="typing-text">SoulCare is typing...</span>
-                    </div>
-
-                    <!-- Quick Reply Suggestions -->
-                    <div class="quick-replies" id="quickReplies">
-                        <button class="quick-reply-btn" onclick="sendQuickReply('I\'m feeling anxious')">
-                            😰 Feeling anxious
-                        </button>
-                        <button class="quick-reply-btn" onclick="sendQuickReply('I need stress management tips')">
-                            😓 Stress management
-                        </button>
-                        <button class="quick-reply-btn" onclick="sendQuickReply('Tell me about mindfulness')">
-                            🧘 Mindfulness
-                        </button>
-                        <button class="quick-reply-btn" onclick="sendQuickReply('I want to talk about my feelings')">
-                            💭 Talk about feelings
-                        </button>
-                    </div>
-
-                    <!-- Chat Input Footer -->
-                    <div class="card-footer">
-                        <form id="messageArea" class="input-group">
-                            <textarea 
-                                name="msg" 
-                                class="form-control type_msg" 
-                                placeholder="Share what's on your mind..." 
-                                id="textInput"
-                                rows="1"
-                            ></textarea>
-                            <div class="input-group-append">
-                                <button class="input_btn send_btn" type="submit">
-                                    <i class="fas fa-paper-plane"></i>
-                                </button>
-                            </div>
-                        </form>
-                        <div class="chat-footer-note">
-                            <i class="fas fa-shield-alt"></i> Your conversation is private and secure
-                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+            `;
+            messagesArea.appendChild(typingDiv);
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            return typingId;
+        }
 
+        // Remove typing indicator
+        function removeTypingIndicator(typingId) {
+            const typingDiv = document.getElementById(typingId);
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+        }
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-    <script>
-        // Start chat function
-        function startChat() {
-            document.getElementById('welcomeScreen').style.display = 'none';
-            document.getElementById('chatInterface').style.display = 'block';
-            document.getElementById('textInput').focus();
+        // Handle keyboard events
+        function handleKeyDown(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
         }
 
         // Auto-resize textarea
-        const textarea = document.getElementById('textInput');
-        textarea.addEventListener('input', function() {
+        document.getElementById('messageInput').addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
 
-        // Submit message on Enter (Shift+Enter for new line)
-        textarea.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                document.getElementById('messageArea').dispatchEvent(new Event('submit'));
-            }
-        });
-
-        // Handle message submission
-        $(document).ready(function() {
-            // Action menu toggle
-            $("#action_menu_btn").click(function() {
-                $(".action_menu").toggle();
-            });
-
-            $("#messageArea").on("submit", function(event) {
-                const rawText = $("#textInput").val().trim();
-                if (!rawText) {
-                    event.preventDefault();
-                    return;
-                }
-
-                const userHtml = '<div class="d-flex justify-content-end mb-4 message-appear"><div class="msg_cotainer_send">' + 
-                    rawText + '<span class="msg_time_send">Just now</span></div>' +
-                    '<div class="img_cont_msg"><div class="avatar-user-msg"><i class="fas fa-user"></i></div></div></div>';
-                
-                $("#messageFormeight").append(userHtml);
-                $("#textInput").val("");
-                textarea.style.height = 'auto';
-                
-                // Scroll to bottom
-                $(".msg_card_body").animate({ scrollTop: $(".msg_card_body")[0].scrollHeight }, 300);
-                
-                // Show typing indicator
-                $("#typingIndicator").fadeIn(300);
-                
-                // Hide quick replies after first message
-                $("#quickReplies").fadeOut(300);
-
-                $.ajax({
-                    data: { msg: rawText },
-                    type: "POST",
-                    url: "/get",
-                }).done(function(data) {
-                    $("#typingIndicator").fadeOut(200, function() {
-                        const botHtml = '<div class="d-flex justify-content-start mb-4 message-appear">' +
-                            '<div class="img_cont_msg"><div class="avatar-bot-msg"><i class="fas fa-brain"></i></div></div>' +
-                            '<div class="msg_cotainer">' + markdownToHtml(data) + '<span class="msg_time">Just now</span></div></div>';
-                        
-                        $("#messageFormeight").append(botHtml);
-                        $(".msg_card_body").animate({ scrollTop: $(".msg_card_body")[0].scrollHeight }, 300);
-                    });
-                }).fail(function() {
-                    $("#typingIndicator").fadeOut(200);
-                    alert("Sorry, I'm having trouble connecting. Please try again.");
-                });
-
-                event.preventDefault();
-            });
-        });
-
-        // Quick reply function
-        function sendQuickReply(message) {
-            $("#textInput").val(message);
-            $("#messageArea").submit();
+        // Utility functions
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Clear chat function
-        function clearChat() {
-            if (confirm("Are you sure you want to clear this conversation?")) {
-                $("#messageFormeight").html(`
-                    <div class="d-flex justify-content-start mb-4 message-appear">
-                        <div class="img_cont_msg"><div class="avatar-bot-msg"><i class="fas fa-brain"></i></div></div>
-                        <div class="msg_cotainer">Hello! I'm SoulCare, your mental health companion. 😊<span class="msg_time">Just now</span></div>
-                    </div>
-                    <div class="d-flex justify-content-start mb-4 message-appear">
-                        <div class="img_cont_msg"><div class="avatar-bot-msg"><i class="fas fa-brain"></i></div></div>
-                        <div class="msg_cotainer">How are you feeling today? You can share anything that's on your mind.<span class="msg_time">Just now</span></div>
-                    </div>
-                `);
-                $("#quickReplies").fadeIn(300);
-            }
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
         }
-
-
-        function markdownToHtml(markdown) {
-            let html = markdown;
-            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');  // **bold**
-            html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');              // *italic*
-            html = html.replace(/^\s*[\*\-]\s+(.+)$/gm, '<li>$1</li>');   // bullet points
-            html = html.replace(/(<li>.*?<\/li>)/s, '<ul class="response-list">$1</ul>');
-            html = html.replace(/\n/g, '<br>');                             // line breaks
-            return html;
-        }
-
-        // Theme toggle
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-            $(".action_menu").hide();
-        }
-
-        // Show info
-        function showInfo() {
-            alert("SoulCare is an AI-powered mental health chatbot designed to provide compassionate support and evidence-based guidance. Remember, while I'm here to help, I'm not a replacement for professional mental health care.");
-            $(".action_menu").hide();
-        }
-
-        // Export chat (placeholder)
-        function exportChat() {
-            alert("Chat export feature coming soon!");
-            $(".action_menu").hide();
-        }
-
-        // Close action menu when clicking outside
-        $(document).click(function(e) {
-            if (!$(e.target).closest('#action_menu_btn, .action_menu').length) {
-                $(".action_menu").hide();
-            }
-        });
     </script>
 </body>
 </html>
