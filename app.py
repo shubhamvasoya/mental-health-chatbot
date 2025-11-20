@@ -2,12 +2,14 @@ from flask import Flask, render_template, jsonify, request, session
 from src.helper import download_hugging_face_embeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import create_retrieval_chain
+from langchain.chains import create_retrieval_chain, create_history_aware_retriever
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
 import os
 import sys
+import traceback
 
 print("Starting SoulCare initialization...", file=sys.stderr)
 
@@ -182,6 +184,7 @@ def submit_intake():
         session['user_gender'] = gender
         session['user_occupation'] = occupation
         session['intake_complete'] = True
+        session['chat_history'] = [] # Initialize chat history for new session
 
         return jsonify({"success": True, "message": "Welcome! We have your information. Let's get started."})
     except Exception as e:
@@ -199,6 +202,18 @@ def chat():
         age = session.get('user_age')
         gender = session.get('user_gender')
         occupation = session.get('user_occupation', '')
+        
+        # Retrieve chat history from session
+        if 'chat_history' not in session:
+            session['chat_history'] = []
+        
+        # Convert session history to LangChain message objects
+        chat_history = []
+        for message in session['chat_history']:
+            if message['role'] == 'user':
+                chat_history.append(HumanMessage(content=message['content']))
+            elif message['role'] == 'assistant':
+                chat_history.append(AIMessage(content=message['content']))
 
         analysis = analyze_user_intent(msg)
 
@@ -222,22 +237,52 @@ def chat():
 Context from knowledge base:
 {{context}}"""
 
-        prompt = ChatPromptTemplate.from_messages([
+        # 1. Contextualize question prompt (for history)
+        contextualize_q_system_prompt = (
+            "Given a chat history and the latest user question "
+            "which might reference context in the chat history, "
+            "formulate a standalone question which can be understood "
+            "without the chat history. Do NOT answer the question, "
+            "just reformulate it if needed and otherwise return it as is."
+        )
+        
+        contextualize_q_prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system", contextualize_q_system_prompt),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+            ]
+        )
+        
+        history_aware_retriever = create_history_aware_retriever(
+            chatModel, retriever, contextualize_q_prompt
+        )
+
+        # 2. Answer question prompt
+        qa_prompt = ChatPromptTemplate.from_messages([
             ("system", full_system_prompt),
+            MessagesPlaceholder("chat_history"),
             ("human", "{input}"),
         ])
 
-        question_answer_chain = create_stuff_documents_chain(chatModel, prompt)
-        rag_chain = create_retrieval_chain(retriever, question_answer_chain)
+        question_answer_chain = create_stuff_documents_chain(chatModel, qa_prompt)
+        rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
 
         print(f"User: {msg}", file=sys.stderr)
         print(f"Analysis: {analysis}", file=sys.stderr)
 
-        response = rag_chain.invoke({"input": msg})
+        response = rag_chain.invoke({"input": msg, "chat_history": chat_history})
+        answer = str(response['answer'])
+        
+        # Update session history
+        session['chat_history'].append({'role': 'user', 'content': msg})
+        session['chat_history'].append({'role': 'assistant', 'content': answer})
+        session.modified = True
 
-        return str(response['answer'])
+        return answer
     except Exception as e:
         print(f"Error: {str(e)}", file=sys.stderr)
+        traceback.print_exc()
         return str(e)
 
 
