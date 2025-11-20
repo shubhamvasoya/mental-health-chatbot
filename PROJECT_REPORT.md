@@ -101,9 +101,6 @@ graph TB
     
     Admin -->|PDF Documents| P5[5.0<br/>Update Knowledge<br/>Base]
     P5 -->|Store Embeddings| D2
-    
-    style D1 fill:#e1f5ff
-    style D2 fill:#ffe1e1
 ```
 
 #### Level 2 DFD (Detailed RAG Process - Process 3.0 & 4.0)
@@ -129,10 +126,6 @@ graph TB
     
     P43 -->|Final Answer| Output([Response to User])
     P43 -->|Save Interaction| D1
-    
-    style D1 fill:#e1f5ff
-    style D2 fill:#ffe1e1
-    style P42 fill:#fff4e1
 ```
 
 ### 2.2 Use Case Diagram
@@ -164,11 +157,6 @@ flowchart LR
     User --> UC3
     User --> UC4
     Admin --> UC8
-    
-    style User fill:#e1f5ff
-    style Admin fill:#ffe1e1
-    style UC5 fill:#ffcccc
-    style System fill:#f9f9f9
 ```
 
 ### 2.3 Class Diagram
