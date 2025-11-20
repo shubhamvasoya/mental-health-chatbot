@@ -1,13 +1,20 @@
 # PROJECT REPORT: Mental Health Chatbot (SoulCare)
 
 ## Acknowledgment
-I would like to express my special thanks of gratitude to my teacher/guide as well as our principal who gave me the golden opportunity to do this wonderful project on the topic "Mental Health Chatbot", which also helped me in doing a lot of Research and i came to know about so many new things I am really thankful to them.
-Secondly i would also like to thank my parents and friends who helped me a lot in finalizing this project within the limited time frame.
+I take this opportunity to express my profound gratitude and deep regard to my guide, **Prof. Zalak Thakker**, for her exemplary guidance, monitoring, and constant encouragement throughout the course of this project. Her valuable insights and constructive criticism were instrumental in shaping the "SoulCare" chatbot. The blessing, help, and guidance given by her from time to time shall carry me a long way in the journey of life on which I am about to embark.
+
+I also wish to express my sincere thanks to my teammates, **Dishan Jain** and **Stavan Shah**, for their unwavering cooperation, hard work, and shared dedication. Their technical contributions and problem-solving skills were invaluable in overcoming the various challenges we faced during the development of this system. This project is a result of our collective effort.
+
+Lastly, I thank my parents and friends for their moral support, patience, and for keeping me motivated during the development of this project.
+
+**Shubham Vasoya**
 
 ## Abstract
-In today's fast-paced world, mental health issues are becoming increasingly prevalent, yet access to professional help remains a challenge for many. This project, "SoulCare," is an AI-powered Mental Health Chatbot designed to provide accessible, immediate, and empathetic support.
-The system utilizes advanced Natural Language Processing (NLP) and Retrieval-Augmented Generation (RAG) to understand user intent, sentiment, and emotional state. Built with Flask, LangChain, and Google's Gemini Pro, SoulCare offers a safe space for users to vent, seek advice, or find coping strategies. It incorporates a knowledge base of mental health resources stored in a Pinecone vector database to provide evidence-based guidance.
-The chatbot features a user intake system to personalize interactions based on age, gender, and occupation, ensuring tailored support. While not a replacement for professional therapy, SoulCare aims to bridge the gap by offering 24/7 emotional support and practical wellness advice.
+Mental health and emotional wellbeing are vital aspects of life, yet many individuals face barriers in accessing timely professional support due to stigma, cost, or availability. Traditional self-help tools often provide generic advice, which fails to adapt to individual needs. To address this gap, the project proposes "SoulCare," an AI-powered mental wellbeing chatbot designed to provide empathetic, safe, and supportive responses. By relying on Retrieval-Augmented Generation (RAG), the chatbot combines the conversational power of large language models with curated wellbeing resources. This ensures that users receive personalized, evidence-based guidance on topics such as stress management, mindfulness, sleep hygiene, and coping strategies, while also encouraging them to seek professional help when necessary.
+
+The development process begins by constructing a knowledge base from a Mental Health and Wellbeing Encyclopedia. Large documents are ingested using PyPDFLoader and split into smaller, context-preserving chunks with RecursiveCharacterTextSplitter. These chunks are transformed into embeddings using HuggingFace's Sentence Transformers and stored in Pinecone, a vector database that enables efficient retrieval. When a user submits a query, the retriever selects the most relevant passages, which are then combined with the user’s input and processed by the LLM, specifically Google's Gemini Pro, to generate safe, empathetic responses. This pipeline ensures that the chatbot provides accurate, emotionally aware answers grounded in trusted sources rather than relying solely on the generative model.
+
+The application is implemented using Flask for backend integration of the RAG pipeline and a web-based chat interface, allowing users to interact with the system directly through their browser. LangChain serves as the orchestration framework, connecting retrieval, embeddings, and LLM generation. Pinecone functions as the vector store, ensuring fast and scalable similarity search. The system also incorporates a user intake module to personalize interactions based on demographics like age and occupation. Together, this technology stack creates a scalable, secure, and empathetic chatbot capable of supporting users in managing their emotional well-being.
 
 ## Index
 1. [About the System](#1-about-the-system)
