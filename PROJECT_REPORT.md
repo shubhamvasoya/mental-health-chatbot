@@ -81,50 +81,94 @@ graph LR
 
 #### Level 1 DFD
 ```mermaid
-graph LR
-    User[User] -- 1. Submit Intake --> Intake[Intake Process]
-    Intake -- 2. Store User Data --> Session[Session Storage]
-    User -- 3. Send Message --> Chat[Chat Interface]
-    Chat -- 4. Message --> Analysis[Intent Analysis]
-    Analysis -- 5. Intent & Sentiment --> RAG[RAG Engine]
-    Session -- 6. User Context --> RAG
-    KB[(Pinecone DB)] -- 7. Retrieve Context --> RAG
-    RAG -- 8. Generate Response --> LLM[Gemini LLM]
-    LLM -- 9. Answer --> Chat
-    Chat -- 10. Display Response --> User
+graph TB
+    User([User])
+    Admin([Admin])
+    
+    User -->|User Details| P1[1.0<br/>Process Intake]
+    P1 -->|Store Profile| D1[(D1: Session<br/>Storage)]
+    
+    User -->|Query Message| P2[2.0<br/>Analyze Intent &<br/>Sentiment]
+    P2 -->|Intent Analysis| P3[3.0<br/>Retrieve Context<br/>from Knowledge Base]
+    
+    D1 -->|User Context| P3
+    D2[(D2: Pinecone<br/>Vector DB)] -->|Relevant Documents| P3
+    
+    P3 -->|Context + Query| P4[4.0<br/>Generate Response<br/>via LLM]
+    P4 -->|Response| User
+    
+    P4 -->|Update History| D1
+    
+    Admin -->|PDF Documents| P5[5.0<br/>Update Knowledge<br/>Base]
+    P5 -->|Store Embeddings| D2
+    
+    style D1 fill:#e1f5ff
+    style D2 fill:#ffe1e1
 ```
 
-#### Level 2 DFD (RAG Process)
+#### Level 2 DFD (Detailed RAG Process - Process 3.0 & 4.0)
 ```mermaid
-graph LR
-    Query[User Query] --> Embed[Embedding Model]
-    Embed --> Vector[Query Vector]
-    Vector --> Search[Similarity Search]
-    KB[(Pinecone Index)] --> Search
-    Search --> Context[Retrieved Documents]
-    Context --> Prompt[Prompt Engineering]
-    History[Chat History] --> Prompt
-    Prompt --> LLM[Gemini Pro]
-    LLM --> Response[Final Answer]
+graph TB
+    Input([User Query +<br/>Intent Analysis])
+    
+    Input --> P31[3.1<br/>Generate Query<br/>Embedding]
+    P31 -->|Query Vector| P32[3.2<br/>Similarity Search<br/>in Pinecone]
+    
+    D2[(D2: Pinecone<br/>Vector DB)] -->|Top-K Documents| P32
+    P32 -->|Retrieved Context| P33[3.3<br/>Contextualize with<br/>Chat History]
+    
+    D1[(D1: Session<br/>Chat History)] -->|Previous Messages| P33
+    
+    P33 -->|Enhanced Context| P41[4.1<br/>Build System Prompt<br/>with User Profile]
+    
+    D1 -->|User Demographics| P41
+    
+    P41 -->|Complete Prompt| P42[4.2<br/>Invoke Gemini LLM<br/>for Generation]
+    
+    P42 -->|Generated Response| P43[4.3<br/>Validate & Format<br/>Response]
+    
+    P43 -->|Final Answer| Output([Response to User])
+    P43 -->|Save Interaction| D1
+    
+    style D1 fill:#e1f5ff
+    style D2 fill:#ffe1e1
+    style P42 fill:#fff4e1
 ```
 
 ### 2.2 Use Case Diagram
 ```mermaid
-usecaseDiagram
-    actor User
-    actor Admin
-
-    package "SoulCare System" {
-        usecase "Submit Intake Form" as UC1
-        usecase "Chat with Bot" as UC2
-        usecase "View Chat History" as UC3
-        usecase "Update Knowledge Base" as UC4
-    }
-
+flowchart LR
+    User((User))
+    Admin((Admin))
+    
+    subgraph System["SoulCare Mental Health Chatbot System"]
+        direction TB
+        UC1[/"Submit Intake Form"/]
+        UC2[/"Send Message"/]
+        UC3[/"Receive Empathetic Response"/]
+        UC4[/"View Chat History"/]
+        UC5[/"Detect Crisis Keywords"/]
+        UC6[/"Retrieve Knowledge Base"/]
+        UC7[/"Analyze User Intent"/]
+        UC8[/"Update Knowledge Base"/]
+        UC9[/"Generate Personalized Response"/]
+        
+        UC2 -.->|includes| UC7
+        UC2 -.->|includes| UC6
+        UC7 -.->|extends| UC5
+        UC6 -.->|includes| UC9
+    end
+    
     User --> UC1
     User --> UC2
     User --> UC3
-    Admin --> UC4
+    User --> UC4
+    Admin --> UC8
+    
+    style User fill:#e1f5ff
+    style Admin fill:#ffe1e1
+    style UC5 fill:#ffcccc
+    style System fill:#f9f9f9
 ```
 
 ### 2.3 Class Diagram
