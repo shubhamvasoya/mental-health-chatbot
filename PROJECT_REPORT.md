@@ -110,8 +110,7 @@ graph LR
 
 ### 2.2 Use Case Diagram
 ```mermaid
-
-@startuml
+usecaseDiagram
     actor User
     actor Admin
 
@@ -126,7 +125,6 @@ graph LR
     User --> UC2
     User --> UC3
     Admin --> UC4
-@enduml
 ```
 
 ### 2.3 Class Diagram
