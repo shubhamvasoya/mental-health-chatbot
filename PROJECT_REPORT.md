@@ -112,7 +112,6 @@ graph LR
 ```mermaid
 
 @startuml
-usecaseDiagram
     actor User
     actor Admin
 
