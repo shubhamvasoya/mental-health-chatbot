@@ -69,16 +69,33 @@ SoulCare is a web-based application designed to provide intelligent mental healt
 
 ## 2. SYSTEM DESIGN USING UML
 
-### 2.1 Data Flow Diagrams (DFD)
+The system design phase defines how the **SoulCare – Mental Health Chatbot** functions internally, including its data flow, user interactions, and architecture. UML diagrams are used to represent the structure and behavior of the system visually.
+This chapter outlines the Data Flow Diagrams (DFD), Use Case Diagram, Class Diagram, and Sequence Diagram for the proposed system.
 
-#### Level 0 DFD (Context Diagram)
+### 2.1 Data Flow Diagrams (DFD)
+The Data Flow Diagrams illustrate how data moves through the SoulCare system — from user inputs to processed empathetic responses. DFDs help visualize how the system components interact and exchange information.
+
+**(a) Level 0 DFD – Context Diagram**
+The Level 0 DFD provides a high-level overview of the system showing the interaction between the User and the SoulCare System.
+*   The User submits an intake form and sends chat messages.
+*   The System analyzes the intent and sentiment.
+*   The System retrieves relevant context from the knowledge base.
+*   The System generates and returns an empathetic response to the User.
+
 ```mermaid
 graph LR
     User[User] -- Input Message --> System[SoulCare Chatbot]
     System -- Response --> User
 ```
 
-#### Level 1 DFD
+**(b) Level 1 DFD – Detailed Data Flow**
+The Level 1 DFD expands on the internal processes of the system, showing key modules:
+1.  **Intake Processing Module** – Handles user demographic data collection.
+2.  **Intent Analysis Module** – Analyzes user messages for emotional state and urgency.
+3.  **Knowledge Retrieval Module** – Searches the Pinecone vector database for relevant mental health resources.
+4.  **Response Generation Module** – Uses the Gemini LLM to generate context-aware answers.
+5.  **Knowledge Base Management** – Allows administrators to update the system with new PDF documents.
+
 ```mermaid
 graph TB
     User([User])
@@ -102,32 +119,21 @@ graph TB
     P5 -->|Store Embeddings| D2
 ```
 
-#### Level 2 DFD (Detailed RAG Process - Process 3.0 & 4.0)
-```mermaid
-graph TB
-    Input([User Query +<br/>Intent Analysis])
-    
-    Input --> P31[3.1<br/>Generate Query<br/>Embedding]
-    P31 -->|Query Vector| P32[3.2<br/>Similarity Search<br/>in Pinecone]
-    
-    D2[(D2: Pinecone<br/>Vector DB)] -->|Top-K Documents| P32
-    P32 -->|Retrieved Context| P33[3.3<br/>Contextualize with<br/>Chat History]
-    
-    D1[(D1: Session<br/>Chat History)] -->|Previous Messages| P33
-    
-    P33 -->|Enhanced Context| P41[4.1<br/>Build System Prompt<br/>with User Profile]
-    
-    D1 -->|User Demographics| P41
-    
-    P41 -->|Complete Prompt| P42[4.2<br/>Invoke Gemini LLM<br/>for Generation]
-    
-    P42 -->|Generated Response| P43[4.3<br/>Validate & Format<br/>Response]
-    
-    P43 -->|Final Answer| Output([Response to User])
-    P43 -->|Save Interaction| D1
-```
-
 ### 2.2 Use Case Diagram
+The Use Case Diagram represents the functional interactions between the User and the SoulCare System. It helps identify what functionalities are available to users and how they are triggered.
+
+**Actors:**
+*   **User** – Submits intake details, chats with the bot, and receives support.
+*   **Admin** – Updates the knowledge base with new resources.
+
+**Use Cases:**
+*   **Submit Intake Form** – User provides age, gender, and occupation.
+*   **Chat with Bot** – User sends messages to the system.
+*   **Analyze User Intent** – System determines if the user is venting, seeking advice, or in crisis.
+*   **Retrieve Knowledge Base** – System fetches relevant documents.
+*   **Detect Crisis Keywords** – System identifies emergency situations.
+*   **Update Knowledge Base** – Admin adds new content to the vector store.
+
 ```mermaid
 flowchart LR
     User((User))
@@ -159,6 +165,26 @@ flowchart LR
 ```
 
 ### 2.3 Class Diagram
+The Class Diagram describes the static structure of the system, showing classes, attributes, and methods, along with their relationships.
+
+**Main Classes:**
+1.  **FlaskApp**
+    *   **Attributes**: `session` (stores user context and history).
+    *   **Methods**: `index()`, `submit_intake()`, `chat()`.
+2.  **Helper**
+    *   **Methods**: `load_pdf_file()`, `text_split()`, `download_hugging_face_embeddings()`.
+3.  **PineconeDB**
+    *   **Attributes**: `index_name`.
+    *   **Methods**: `create_index()`, `similarity_search()`.
+4.  **ChatBot (RAG Chain)**
+    *   **Attributes**: `chatModel` (Gemini).
+    *   **Methods**: `analyze_user_intent()`, `get_system_prompt()`, `invoke()`.
+
+**Relationships:**
+*   **FlaskApp** → uses → **Helper**
+*   **FlaskApp** → connects to → **PineconeDB**
+*   **FlaskApp** → utilizes → **ChatBot**
+
 ```mermaid
 classDiagram
     class FlaskApp {
@@ -193,8 +219,19 @@ classDiagram
     FlaskApp --> ChatBot : utilizes
 ```
 
-### 2.4 Sequence Diagrams
-**User Chat Flow:**
+### 2.4 Sequence Diagram
+The Sequence Diagram illustrates the order of interactions between system components during the chat process. It shows how the user’s message travels through the system and returns a response.
+
+**Process Flow:**
+1.  The **User** enters a message via the frontend interface.
+2.  **FlaskApp** receives the message and checks the session state.
+3.  The system calls `analyze_user_intent()` to determine the user's emotional state.
+4.  The system queries **Pinecone** to find relevant mental health documents.
+5.  **Pinecone** returns the most similar text chunks.
+6.  The system constructs a prompt with the user's context, intent, and retrieved documents.
+7.  **Gemini LLM** generates a personalized, empathetic response.
+8.  The response is displayed to the **User**.
+
 ```mermaid
 sequenceDiagram
     participant User
