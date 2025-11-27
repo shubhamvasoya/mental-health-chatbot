@@ -397,10 +397,30 @@ Although the current system performs well, several improvements can be made to e
 
 ## 6. REFERENCES
 
-### 6.1 Books, Research Papers, Experts persons, Technology, Webs, etc.
-1.  **LangChain Documentation:** https://python.langchain.com/
-2.  **Google Gemini API Docs:** https://ai.google.dev/docs
-3.  **Pinecone Vector Database:** https://www.pinecone.io/
-4.  **Flask Web Framework:** https://flask.palletsprojects.com/
-5.  **Research Paper:** "The Efficacy of Chatbots in Mental Health Care" (Hypothetical Reference)
-6.  **HuggingFace Models:** https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2
+The following books, research papers, online resources, and documentation were referred to during the development of the SoulCare – Mental Health Chatbot system:
+
+**Books & Research Papers**
+1.  Lewis, P., et al. "Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks." *NeurIPS*, 2020.
+2.  Vaswani, A., et al. "Attention Is All You Need." *NeurIPS*, 2017.
+3.  Fitzpatrick, K.K., Darcy, A., & Vierhile, M. "Delivering Cognitive Behavior Therapy to Young Adults With Symptoms of Depression and Anxiety Using a Fully Automated Conversational Agent (Woebot): A Randomized Controlled Trial." *JMIR Mental Health*, 4(2), e19 (2017).
+4.  Abd-Alrazaq, A.A., et al. "The Effectiveness of Artificial Intelligence-Based Chatbots for Mental Health Assistance: A Systematic Review." *Journal of Medical Internet Research*, 22(7), e17165 (2020).
+
+**Websites & Official Documentation**
+1.  **Python Official Documentation** – https://docs.python.org
+2.  **Flask Documentation** – https://flask.palletsprojects.com
+3.  **LangChain Documentation** – https://python.langchain.com
+4.  **Google Gemini API Docs** – https://ai.google.dev
+5.  **Pinecone Documentation** – https://docs.pinecone.io
+6.  **HuggingFace Documentation** – https://huggingface.co/docs
+7.  **Stack Overflow** – General programming references
+8.  **Google Developers** – Python & API integration guidelines
+
+**Tools & Libraries**
+1.  **GitHub Repositories** related to RAG and Mental Health Chatbots
+2.  **PyPDFLoader Documentation** for PDF data ingestion
+3.  **Sentence Transformers** documentation for embedding generation
+
+**Online Articles / Blogs**
+1.  Medium Articles on "Building RAG Chatbots with LangChain"
+2.  Towards Data Science blogs on "Vector Databases and LLMs"
+3.  Analytics Vidhya articles on "NLP for Mental Health Applications"
