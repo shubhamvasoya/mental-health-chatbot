@@ -28,43 +28,42 @@ The application is implemented using Flask for backend integration of the RAG pi
 
 ## 1. ABOUT THE SYSTEM
 
-### 1.1 Problem Definition (Identification of needs)
-Mental health support is often inaccessible due to high costs, stigma, or lack of available professionals. Many individuals struggle with stress, anxiety, and loneliness but have no immediate outlet for their feelings. Existing chatbots often lack empathy or fail to provide context-aware responses. There is a need for an intelligent system that can:
-- Provide 24/7 emotional support.
-- Understand the nuances of human emotion and intent.
-- Offer evidence-based advice and coping strategies.
-- Personalize interactions based on user demographics.
+### 1.1 Problem Definition (Identification of Needs)
+In the modern world, mental health issues are becoming increasingly prevalent, yet accessing timely and professional support remains a significant challenge. Many individuals face barriers such as high costs, social stigma, long waiting times, and a lack of available professionals in their vicinity.
+The lack of immediate, accessible support often leaves individuals struggling with stress, anxiety, and loneliness without a safe outlet for their feelings. Traditional self-help tools often provide generic advice that fails to adapt to the user's specific emotional state or context.
+The **SoulCare – Mental Health Chatbot** project addresses this challenge by leveraging Artificial Intelligence (AI) and Natural Language Processing (NLP) to provide an empathetic, intelligent, and accessible mental wellbeing assistant. The system eliminates the barrier to entry for support by offering a safe, judgment-free space where users can express themselves and receive personalized, evidence-based guidance.
+The problem can be summarized as:
+*"How can we democratize access to mental health support using AI to provide immediate, empathetic, and context-aware guidance while ensuring user privacy and safety?"*
 
 ### 1.2 Requirement Specifications (Product/System Tasks)
-**Functional Requirements:**
-- **User Intake:** The system must collect user details (age, gender, occupation) to personalize the experience.
-- **Intent Analysis:** The system must analyze user messages to detect intent (emotional, technical, venting, emergency) and sentiment.
-- **Contextual Chat:** The chatbot must remember conversation history and provide coherent responses.
-- **Knowledge Retrieval:** The system must retrieve relevant mental health information from a vector database.
-- **Emergency Detection:** The system must detect crisis keywords and suggest professional help.
+SoulCare is a web-based application designed to provide intelligent mental health support. The system performs the following key tasks:
+1.  **User Intake and Profiling**
+    -   Users provide basic demographic details (age, gender, occupation) to initialize the session.
+    -   The system uses this data to tailor its persona and advice (e.g., student vs. professional).
+2.  **Intent and Sentiment Analysis**
+    -   The system analyzes every user message to detect the underlying intent (e.g., emotional distress, seeking advice, venting, emergency).
+    -   It assesses sentiment and emotional intensity to adjust the tone of the response.
+3.  **Contextual Knowledge Retrieval (RAG)**
+    -   A Retrieval-Augmented Generation (RAG) pipeline searches a curated knowledge base of mental health resources (PDFs) stored in a vector database.
+    -   Relevant information is retrieved to ground the AI's responses in psychological best practices.
+4.  **Empathetic Response Generation**
+    -   A pretrained Large Language Model (Google Gemini) generates responses that combine the retrieved knowledge with the user's context.
+    -   The output is designed to be warm, validating, and actionable.
+5.  **Emergency Detection**
+    -   The system actively monitors for crisis keywords (e.g., self-harm).
+    -   If detected, it prioritizes safety by providing immediate resources and suggesting professional help.
 
-**Non-Functional Requirements:**
-- **Availability:** The system should be available 24/7.
-- **Privacy:** User data should be handled securely (session-based).
-- **Response Time:** The chatbot should respond within a reasonable time frame (under 5 seconds).
-- **Usability:** The interface should be simple and user-friendly.
-
-### 1.3 Tools and Technology Used
-**Front-End:**
-- **HTML5/CSS3:** For the chat interface structure and styling.
-- **JavaScript:** For handling user interactions and AJAX requests.
-- **Bootstrap:** For responsive design.
-
-**Back-End:**
-- **Python:** The core programming language.
-- **Flask:** A lightweight web framework for handling HTTP requests and routing.
-
-**Frameworks & Libraries:**
-- **LangChain:** For building the LLM application and RAG pipeline.
-- **Google Gemini Pro:** The Large Language Model (LLM) used for generating responses.
-- **Pinecone:** Vector database for storing and retrieving embeddings.
-- **HuggingFace Embeddings:** For converting text into vector embeddings (`sentence-transformers/all-MiniLM-L6-v2`).
-- **PyPDF:** For loading and processing PDF documents for the knowledge base.
+### 1.3 Tools and Technologies Used
+| Category | Technology / Tool | Purpose |
+| :--- | :--- | :--- |
+| **Frontend** | HTML, CSS, JavaScript | Web-based user interface for the chat experience |
+| **Backend** | Flask (Python) | High-performance web framework for handling requests and routing |
+| **Orchestration** | LangChain | Framework for building the RAG pipeline and managing LLM chains |
+| **AI Model** | Google Gemini Pro | Large Language Model for natural language understanding and generation |
+| **Vector DB** | Pinecone | Storing and retrieving vector embeddings of the knowledge base |
+| **Embeddings** | HuggingFace | Converting text into vector representations (`all-MiniLM-L6-v2`) |
+| **Language** | Python | Core programming language for both backend logic and data processing |
+| **Storage** | Session Storage | Temporary storage for user chat history and profile data |
 
 ---
 
