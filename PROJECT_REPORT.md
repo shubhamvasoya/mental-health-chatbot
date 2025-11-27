@@ -303,71 +303,76 @@ This chapter provides the Data Dictionary of the SoulCare system. It includes im
 
 ## 4. IMPLEMENTATION
 
-### 4.1 Screen Layouts with Validations
-**(Placeholders for Screenshots)**
+This chapter describes how the SoulCare system is implemented using Flask, LangChain, Pinecone, and Google Gemini. The implementation consists of multiple modules that work together to process user intake, analyze intent, retrieve knowledge, and generate empathetic responses.
 
-1.  **Intake Screen:**
-    -   **Fields:** Age (Number, required), Gender (Dropdown, required), Occupation (Text, optional).
-    -   **Validation:** "Age and gender are required" error message if submitted empty.
-    -   *[Insert Screenshot of Intake Modal here]*
+### 4.1 Module Description
 
-2.  **Chat Interface:**
-    -   **Layout:** Chat bubble style. User messages on right, bot messages on left.
-    -   **Input:** Text area with send button.
-    -   *[Insert Screenshot of Chat Interface here]*
+#### 4.1.1 User Intake Module
+This module collects initial user demographics to personalize the chat experience.
+*   **Built using**: HTML Modal & JavaScript (AJAX)
+*   **Data Collected**: Age, Gender, Occupation
+*   **Functionality**:
+    *   Validate input (Age and Gender are required)
+    *   Store details in Flask Session
+    *   Initialize chat history
 
-### 4.2 Sample Coding (with Security tasks)
+#### 4.1.2 Knowledge Ingestion Module (Offline)
+This module prepares the knowledge base from PDF documents.
+*   **Technologies Used**: PyPDFLoader, RecursiveCharacterTextSplitter, HuggingFace Embeddings
+*   **Steps**:
+    1.  Load PDFs from `data/` directory.
+    2.  Split text into 500-character chunks with overlap.
+    3.  Generate vector embeddings using `all-MiniLM-L6-v2`.
+    4.  Upsert vectors to Pinecone database.
 
-**Security Measures:**
-- **Environment Variables:** API keys (`PINECONE_API_KEY`, `GEMINI_API_KEY`) are stored in a `.env` file and not hardcoded.
-- **Input Validation:** The `submit_intake` function validates that age and gender are present.
-- **Session Management:** Flask `secret_key` is used to sign session cookies.
+#### 4.1.3 Intent Analysis Module
+This module analyzes the user's message to determine their emotional state.
+*   **Process**:
+    *   Scan message for keywords (emotional, technical, urgent, venting).
+    *   Calculate sentiment score (positive, negative, neutral).
+    *   Determine "Emotional Level" (High/Medium/Low).
+*   **Output**: A dictionary containing `intent`, `sentiment`, and `emotional_level` used to steer the system prompt.
 
-**Code Snippet: Intent Analysis (`app.py`)**
-```python
-def analyze_user_intent(message):
-    """Analyze user message to determine intent and sentiment"""
-    message_lower = message.lower()
-    
-    # Keywords lists (truncated for brevity)
-    urgent_keywords = ['crisis', 'emergency', 'suicidal', ...]
-    
-    urgent_count = sum(1 for kw in urgent_keywords if kw in message_lower)
-    
-    if urgent_count > 0:
-        return {'intent': 'emergency', 'sentiment': 'urgent', 'emotional_level': 'high'}
-    
-    # ... other logic
-```
+#### 4.1.4 Knowledge Retrieval Module (RAG)
+This module fetches relevant information to answer the user's query.
+*   **Process**:
+    1.  Convert user query into a vector embedding.
+    2.  Perform cosine similarity search in Pinecone.
+    3.  Retrieve top 3 most relevant document chunks.
+    4.  Pass these chunks as "context" to the LLM.
 
-**Code Snippet: RAG Chain Initialization (`app.py`)**
-```python
-# Initialize Retriever
-retriever = docsearch.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+#### 4.1.5 Response Generation Module
+This is the core AI module responsible for creating the final response.
+*   **Process**:
+    1.  Construct a dynamic system prompt using User Profile + Intent + Context.
+    2.  Send the prompt and chat history to Google Gemini Pro.
+    3.  Receive the generated response.
+    4.  Format the response for display.
 
-# Initialize LLM
-chatModel = ChatGoogleGenerativeAI(model="gemini-2.5-flash", google_api_key=GEMINI_API_KEY)
+#### 4.1.6 Chat Interface Module
+This module handles the real-time interaction between the user and the bot.
+*   **Features**:
+    *   Chat bubble layout (User right, Bot left).
+    *   Auto-scroll to latest message.
+    *   Loading indicators during processing.
+    *   Error handling for network issues.
 
-# Create Chain
-question_answer_chain = create_stuff_documents_chain(chatModel, qa_prompt)
-rag_chain = create_retrieval_chain(history_aware_retriever, question_answer_chain)
-```
+### 4.2 System Screens (Placeholders)
+(Add your real screenshots later)
 
-### 4.3 Steps of the execution Project and Navigation
-1.  **Setup Environment:**
-    -   Install Python 3.10+.
-    -   Run `pip install -r requirements.txt`.
-    -   Create `.env` file with API keys.
-2.  **Prepare Knowledge Base:**
-    -   Place PDF files in `data/` directory.
-    -   Run `python store_index.py` to process and upload embeddings to Pinecone.
-3.  **Run Application:**
-    -   Execute `python app.py`.
-    -   The server starts at `http://localhost:8080`.
-4.  **Navigation:**
-    -   Open browser to `localhost:8080`.
-    -   Fill out the Intake Form.
-    -   Start chatting with SoulCare.
+*   **Fig 4.1: User Intake Form**
+    *(Screenshot of the modal asking for Age/Gender)*
+
+*   **Fig 4.2: Chat Interface (Welcome)**
+    *(Screenshot of the initial greeting)*
+
+*   **Fig 4.3: Empathetic Response Example**
+    *(Screenshot showing the bot responding to an emotional query)*
+
+*   **Fig 4.4: Crisis Intervention**
+    *(Screenshot showing the bot providing helpline numbers)*
+
+
 
 ---
 
